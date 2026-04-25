@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Omnitrix Console</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Orbitron',sans-serif;
+}
+
+body{
+background:#050505;
+color:#fff;
+height:100vh;
+overflow:hidden;
+cursor:none;
+}
+
+#bgCanvas{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:-3;
+}
+
+body::before{
+content:"";
+position:fixed;
+width:100%;
+height:100%;
+background:radial-gradient(circle at 50% 50%, rgba(0,255,136,0.15), transparent 60%);
+animation:pulseBg 4s ease-in-out infinite alternate;
+z-index:-2;
+}
+
+@keyframes pulseBg{
+0%{opacity:0.3;}
+100%{opacity:0.7;}
+}
+
+.console{
+display:flex;
+height:100vh;
+}
+
+.alien-menu{
+width:25%;
+position:relative;
+padding:40px;
+border-right:1px solid rgba(0,255,100,0.3);
+overflow:hidden;
+background:linear-gradient(135deg,#001f14,#003322,#001f14);
+}
+
+.alien-menu::before{
+content:"";
+position:absolute;
+top:-50%;
+left:-50%;
+width:200%;
+height:200%;
+background:radial-gradient(circle,#00ff8820,transparent 60%);
+animation:rotateBg 15s linear infinite;
+z-index:0;
+}
+
+@keyframes rotateBg{
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
+}
+
+.alien-menu h2,
+.alien-menu ul{
+position:relative;
+z-index:1;
+}
+
+.alien-menu ul{
+list-style:none;
+}
+
+.alien-menu li{
+padding:15px;
+margin-bottom:15px;
+cursor:pointer;
+transition:0.3s;
+border-radius:10px;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(10px);
+}
+
+.alien-menu li:hover{
+background:#00ff88;
+color:#000;
+transform:translateX(10px);
+box-shadow:0 0 20px #00ff88;
+}
+
+.showcase{
+flex:1;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+}
+
+.showcase img{
+width:300px;
+height:300px;
+object-fit:contain;
+transition:0.5s ease;
+}
+
+.showcase img:hover{
+transform:scale(1.1) rotate(5deg);
+}
+
+.showcase h1{
+margin-top:20px;
+font-size:40px;
+}
+
+.showcase p{
+margin:15px 0;
+color:#00ff88;
+}
+
+.stats{
+width:60%;
+}
+
+.bar{
+height:20px;
+background:#111;
+border-radius:20px;
+margin:15px 0;
+overflow:hidden;
+}
+
+.bar div{
+height:100%;
+width:0%;
+background:linear-gradient(90deg,#d90e0e,#aabe29);
+transition:1s ease;
+}
+
+.cursor{
+width:25px;
+height:25px;
+border-radius:50%;
+position:fixed;
+top:0;
+left:0;
+pointer-events:none;
+z-index:99999;
+background:radial-gradient(circle,#00ff88,#00ff8840);
+mix-blend-mode:screen;
+filter:blur(4px);
+transform:translate(-50%, -50%);
+transition:width 0.3s ease,height 0.3s ease,background 0.3s ease;
+}
+</style>
+
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="cursor"></div>
+
+<div class="console">
+
+<div class="alien-menu">
+<h2>ALIENS</h2>
+<ul>
+<li onclick="selectAlien('heatblast')">Heatblast</li>
+<li onclick="selectAlien('fourarms')">Four Arms</li>
+<li onclick="selectAlien('xlr8')">XLR8</li>
+<li onclick="selectAlien('diamondhead')">Diamondhead</li>
+</ul>
+</div>
+
+<div class="showcase">
+<img id="alienImg" src="https://i.pinimg.com/originals/53/01/05/53010574d804ad841943d5353ee95ae6.png">
+<h1 id="alienName">Heatblast</h1>
+<p id="alienDesc">Master of Fire Manipulation</p>
+
+<div class="stats">
+<div class="bar"><div id="strength"></div></div>
+<div class="bar"><div id="speed"></div></div>
+<div class="bar"><div id="intelligence"></div></div>
+</div>
+</div>
+
+</div>
+
+<script>
+const cursor=document.querySelector(".cursor");
+
+let mouseX=0, mouseY=0, posX=0, posY=0;
+
+document.addEventListener("mousemove",(e)=>{
+mouseX=e.clientX;
+mouseY=e.clientY;
+});
+
+function animateCursor(){
+posX += (mouseX - posX) * 0.15;
+posY += (mouseY - posY) * 0.15;
+cursor.style.left = posX + "px";
+cursor.style.top = posY + "px";
+requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+document.querySelectorAll("li, img").forEach(el=>{
+el.addEventListener("mouseenter",()=>{
+cursor.style.width="60px";
+cursor.style.height="60px";
+});
+el.addEventListener("mouseleave",()=>{
+cursor.style.width="25px";
+cursor.style.height="25px";
+});
+});
+
+const aliens={
+heatblast:{img:"https://i.pinimg.com/originals/53/01/05/53010574d804ad841943d5353ee95ae6.png",name:"Heatblast",desc:"Master of Fire Manipulation",strength:75,speed:60,intelligence:65},
+fourarms:{img:"https://i.pinimg.com/originals/f2/f4/9d/f2f49d924097d2a7945434a75bca371c.png",name:"Four Arms",desc:"Extreme Physical Strength",strength:95,speed:50,intelligence:55},
+xlr8:{img:"https://i.pinimg.com/originals/24/17/a1/2417a1afa19f16dde0f6ec4cf8154e43.png",name:"XLR8",desc:"Ultimate Speed Alien",strength:65,speed:100,intelligence:70},
+diamondhead:{img:"https://i.pinimg.com/originals/d7/ac/2a/d7ac2ad27e8aba4ba6839ca61967f962.png",name:"Diamondhead",desc:"Crystal Defense Warrior",strength:85,speed:65,intelligence:75}
+};
+
+function selectAlien(a){
+document.getElementById("alienImg").src=aliens[a].img;
+document.getElementById("alienName").innerText=aliens[a].name;
+document.getElementById("alienDesc").innerText=aliens[a].desc;
+animateBar("strength",aliens[a].strength);
+animateBar("speed",aliens[a].speed);
+animateBar("intelligence",aliens[a].intelligence);
+}
+
+function animateBar(id,value){
+let bar=document.getElementById(id);
+bar.style.width="0%";
+setTimeout(()=>{bar.style.width=value+"%";},200);
+}
+
+const canvas=document.getElementById("bgCanvas");
+const ctx=canvas.getContext("2d");
+
+function resize(){
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+}
+resize();
+
+let particles=[];
+for(let i=0;i<120;i++){
+particles.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+size:Math.random()*2+1,
+speedY:Math.random()*0.5+0.2
+});
+}
+
+function drawParticles(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+particles.forEach(p=>{
+ctx.beginPath();
+ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+ctx.fillStyle="#00ff88";
+ctx.fill();
+p.y+=p.speedY;
+if(p.y>canvas.height){
+p.y=0;
+p.x=Math.random()*canvas.width;
+}
+});
+requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+window.addEventListener("resize",resize);
+</script>
+
+</body>
+</html>
